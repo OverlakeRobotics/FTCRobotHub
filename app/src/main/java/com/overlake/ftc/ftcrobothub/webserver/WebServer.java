@@ -9,11 +9,13 @@ import fi.iki.elonen.NanoHTTPD;
 public class WebServer extends NanoHTTPD
 {
     private Router router;
+    private boolean isListenting;
 
     public WebServer(int port)
     {
         super(port);
         this.router = new Router();
+        isListenting = false;
     }
 
     public Router getRouter() {
@@ -23,9 +25,19 @@ public class WebServer extends NanoHTTPD
     public void listen() {
         try {
             this.start();
+            isListenting = true;
         } catch (IOException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
+    }
+
+    public void stopListening() {
+        this.stop();
+        isListenting = false;
+    }
+
+    public boolean isListenting() {
+        return this.isListenting;
     }
 
     @Override
