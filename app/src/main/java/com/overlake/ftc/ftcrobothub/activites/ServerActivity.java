@@ -24,14 +24,8 @@ public class ServerActivity extends AppCompatActivity
         Router router = webServer.getRouter();
         router.addRoute(new HomeRoute());
 
-        try
-        {
-            webServer.start();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+
+        webServer.listen();
     }
 
     @Override

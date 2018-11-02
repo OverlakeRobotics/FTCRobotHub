@@ -26,7 +26,6 @@ public abstract class Route {
 
     private void createRoutes(Map<RoutingPath, RouteHandler> routingTable, Route route) {
         Class<? extends Route> routeClass = route.getClass();
-
         for (Method method : routeClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(AddRoute.class)) {
                 AddRoute routeData = method.getAnnotation(AddRoute.class);

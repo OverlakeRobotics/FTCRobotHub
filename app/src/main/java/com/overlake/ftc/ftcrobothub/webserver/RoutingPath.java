@@ -22,7 +22,6 @@ public class RoutingPath {
             RoutingPath other = (RoutingPath)obj;
             return other.method == this.method &&
                     other.uri.equals(this.uri);
-
         }
         return false;
     }
