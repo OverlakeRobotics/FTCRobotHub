@@ -10,14 +10,15 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 
-public abstract class Route {
+public abstract class Route implements IRoute {
     private String baseURI;
 
     public Route(String baseURI) {
         this.baseURI = baseURI;
     }
 
-    public void setRoutes(Map<RoutingPath, RouteHandler> routingTable, Route route) {
+    @Override
+    public void setRoutes(Map<RoutingPath, RouteHandler> routingTable, IRoute route) {
         try {
             createRoutes(routingTable, route);
         } catch (Exception e) {
@@ -25,8 +26,8 @@ public abstract class Route {
         }
     }
 
-    private void createRoutes(Map<RoutingPath, RouteHandler> routingTable, Route route) {
-        Class<? extends Route> routeClass = route.getClass();
+    protected void createRoutes(Map<RoutingPath, RouteHandler> routingTable, IRoute route) {
+        Class<? extends IRoute> routeClass = route.getClass();
         for (Method method : routeClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(AddRoute.class)) {
                 AddRoute routeData = method.getAnnotation(AddRoute.class);
@@ -43,7 +44,7 @@ public abstract class Route {
             baseURI + "/" + URI;
     }
 
-    private RouteHandler createHandler(final Method method, final Route route) {
+    private RouteHandler createHandler(final Method method, final IRoute route) {
         return new RouteHandler() {
             @Override
             public Response handle(IHTTPSession session) {
@@ -52,7 +53,7 @@ public abstract class Route {
         };
     }
 
-    private Response invokeHandler(Method method, Route route, IHTTPSession session) {
+    private Response invokeHandler(Method method, IRoute route, IHTTPSession session) {
         try {
             return (Response)method.invoke(route, session);
         } catch (IllegalAccessException e) {

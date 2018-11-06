@@ -1,7 +1,5 @@
 package com.overlake.ftc.ftcrobothub.webserver;
 
-import com.overlake.ftc.ftcrobothub.routes.HomeRoute;
-
 import java.io.IOException;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -9,13 +7,13 @@ import fi.iki.elonen.NanoHTTPD;
 public class WebServer extends NanoHTTPD
 {
     private Router router;
-    private boolean isListenting;
+    private boolean isListening;
 
     public WebServer(int port)
     {
         super(port);
         this.router = new Router();
-        isListenting = false;
+        isListening = false;
     }
 
     public Router getRouter() {
@@ -25,7 +23,7 @@ public class WebServer extends NanoHTTPD
     public void listen() {
         try {
             this.start();
-            isListenting = true;
+            isListening = true;
         } catch (IOException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -33,11 +31,11 @@ public class WebServer extends NanoHTTPD
 
     public void stopListening() {
         this.stop();
-        isListenting = false;
+        isListening = false;
     }
 
-    public boolean isListenting() {
-        return this.isListenting;
+    public boolean isListening() {
+        return this.isListening;
     }
 
     @Override

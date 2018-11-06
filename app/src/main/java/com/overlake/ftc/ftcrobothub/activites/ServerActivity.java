@@ -9,9 +9,6 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
-import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pInfo;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -20,32 +17,36 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.overlake.ftc.ftcrobothub.R;
+import com.overlake.ftc.ftcrobothub.app.App;
+import com.overlake.ftc.ftcrobothub.app.RobotApp;
 import com.overlake.ftc.ftcrobothub.routes.HomeRoute;
 import com.overlake.ftc.ftcrobothub.webserver.Router;
 import com.overlake.ftc.ftcrobothub.webserver.WebServer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class ServerActivity extends AppCompatActivity
 {
-    private WebServer webServer;
     private ConstraintLayout layout;
     private FloatingActionButton startButton;
     private TextView serverStatusText;
     private TextView ipText;
     private BroadcastReceiver broadcastReceiver;
+    private App app;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server);
-        webServer = new WebServer(8000);
+        app = new RobotApp(this);
 
         this.startButton = findViewById(R.id.serverToggle);
         this.serverStatusText = findViewById(R.id.serverStatus);
@@ -55,9 +56,6 @@ public class ServerActivity extends AppCompatActivity
 
         initializeStartButton();
 
-        Router router = webServer.getRouter();
-        router.addRoute(new HomeRoute());
-
         initNetworkMonitor();
     }
 
@@ -66,13 +64,13 @@ public class ServerActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 if (isConnectedToWifi()) {
-                    if (!webServer.isListenting()) {
-                        webServer.listen();
+                    if (!app.isRunning()) {
+                        app.start();
                         serverStatusText.setVisibility(View.VISIBLE);
                         startButton.setBackgroundTintList(ContextCompat.getColorStateList(ServerActivity.this, R.color.colorGreen));
                         Toast.makeText(getBaseContext(), "Started web server", Toast.LENGTH_SHORT).show();
                     } else {
-                        webServer.stopListening();
+                        app.stop();
                         serverStatusText.setVisibility(View.INVISIBLE);
                         startButton.setBackgroundTintList(ContextCompat.getColorStateList(ServerActivity.this, R.color.colorRed));
                         Toast.makeText(getBaseContext(), "Stopping web server", Toast.LENGTH_SHORT).show();
@@ -86,7 +84,7 @@ public class ServerActivity extends AppCompatActivity
 
     private boolean isConnectedToWifi() {
         NetworkInfo networkInfo = ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+        return networkInfo != null;
     }
 
     private void setIpAccess() {
@@ -115,7 +113,7 @@ public class ServerActivity extends AppCompatActivity
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (webServer.isListenting()) {
+            if (app.isRunning()) {
                 new AlertDialog.Builder(this)
                     .setTitle(R.string.warning)
                     .setMessage(R.string.dialog_exit_message)
@@ -138,6 +136,6 @@ public class ServerActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        webServer.stop();
+        app.stop();
     }
 }
