@@ -1,16 +1,22 @@
-package com.overlake.ftc.ftcrobothub.webserver;
+package com.overlake.ftc.ftcrobothub.webserver.routing;
 
+import com.google.gson.Gson;
+import com.overlake.ftc.ftcrobothub.webserver.responses.ServerSideErrorResponse;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 
-public abstract class Route implements IRoute {
+public abstract class Route implements IRoute
+{
     private String baseURI;
 
     public Route(String baseURI) {
@@ -56,10 +62,34 @@ public abstract class Route implements IRoute {
     private Response invokeHandler(Method method, IRoute route, IHTTPSession session) {
         try {
             return (Response)method.invoke(route, session);
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        } catch (InvocationTargetException e) {
-            throw new IllegalArgumentException(e.getMessage());
+        } catch (Exception e) {
+            return ServerSideErrorResponse.getServerError(session.getUri(), getStackTrace(e));
+        }
+    }
+
+    private String getStackTrace(Exception e) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        e.printStackTrace(new PrintStream(out));
+        return new String(out.toByteArray());
+    }
+
+    protected <T> T parseBody(IHTTPSession session, T schema) {
+        Gson gson = new Gson();
+        return (T)(gson.fromJson(getJsonBody(session), schema.getClass()));
+    }
+
+    private String getJsonBody(IHTTPSession session) {
+        try
+        {
+            Integer contentLength = Integer.parseInt(session.getHeaders().get("content-length"));
+            byte[] buffer = new byte[contentLength];
+            InputStream input = session.getInputStream();
+            input.read(buffer, 0, contentLength);
+            return new String(buffer);
+        }
+        catch (Exception e)
+        {
+            throw new IllegalStateException(e.getMessage());
         }
     }
 }

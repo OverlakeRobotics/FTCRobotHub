@@ -1,4 +1,4 @@
-package com.overlake.ftc.ftcrobothub.webserver;
+package com.overlake.ftc.ftcrobothub.webserver.routing;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;

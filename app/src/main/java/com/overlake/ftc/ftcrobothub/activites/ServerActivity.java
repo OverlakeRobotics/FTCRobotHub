@@ -23,14 +23,6 @@ import android.widget.Toast;
 import com.overlake.ftc.ftcrobothub.R;
 import com.overlake.ftc.ftcrobothub.app.App;
 import com.overlake.ftc.ftcrobothub.app.RobotApp;
-import com.overlake.ftc.ftcrobothub.routes.HomeRoute;
-import com.overlake.ftc.ftcrobothub.webserver.Router;
-import com.overlake.ftc.ftcrobothub.webserver.WebServer;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class ServerActivity extends AppCompatActivity
 {
@@ -63,28 +55,19 @@ public class ServerActivity extends AppCompatActivity
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isConnectedToWifi()) {
-                    if (!app.isRunning()) {
-                        app.start();
-                        serverStatusText.setVisibility(View.VISIBLE);
-                        startButton.setBackgroundTintList(ContextCompat.getColorStateList(ServerActivity.this, R.color.colorGreen));
-                        Toast.makeText(getBaseContext(), "Started web server", Toast.LENGTH_SHORT).show();
-                    } else {
-                        app.stop();
-                        serverStatusText.setVisibility(View.INVISIBLE);
-                        startButton.setBackgroundTintList(ContextCompat.getColorStateList(ServerActivity.this, R.color.colorRed));
-                        Toast.makeText(getBaseContext(), "Stopping web server", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Snackbar.make(layout, getString(R.string.wifi_message), Snackbar.LENGTH_LONG).show();
-                }
+            if (!app.isRunning()) {
+                app.start();
+                serverStatusText.setVisibility(View.VISIBLE);
+                startButton.setBackgroundTintList(ContextCompat.getColorStateList(ServerActivity.this, R.color.colorGreen));
+                Toast.makeText(getBaseContext(), "Started web server", Toast.LENGTH_SHORT).show();
+            } else {
+                app.stop();
+                serverStatusText.setVisibility(View.INVISIBLE);
+                startButton.setBackgroundTintList(ContextCompat.getColorStateList(ServerActivity.this, R.color.colorRed));
+                Toast.makeText(getBaseContext(), "Stopping web server", Toast.LENGTH_SHORT).show();
+            }
             }
         });
-    }
-
-    private boolean isConnectedToWifi() {
-        NetworkInfo networkInfo = ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-        return networkInfo != null;
     }
 
     private void setIpAccess() {

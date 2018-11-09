@@ -2,17 +2,17 @@ package com.overlake.ftc.ftcrobothub.app;
 
 import android.content.Context;
 
-import com.overlake.ftc.ftcrobothub.webserver.IRoute;
-import com.overlake.ftc.ftcrobothub.webserver.PublicFiles;
-import com.overlake.ftc.ftcrobothub.webserver.Route;
-import com.overlake.ftc.ftcrobothub.webserver.Router;
 import com.overlake.ftc.ftcrobothub.webserver.WebServer;
+import com.overlake.ftc.ftcrobothub.webserver.routing.IRoute;
+import com.overlake.ftc.ftcrobothub.webserver.routing.NotFoundRoute;
+import com.overlake.ftc.ftcrobothub.webserver.routing.Router;
+import com.overlake.ftc.ftcrobothub.webserver.routing.StaticFilesRoute;
 
 public abstract class App
 {
     private WebServer webServer;
     private Router router;
-    private PublicFiles publicFiles;
+    private StaticFilesRoute staticFiles;
     private Context activityContext;
 
     public App(Context context) {
@@ -25,12 +25,14 @@ public abstract class App
         return router;
     }
 
-    public PublicFiles getPublicFiles() {
-        return publicFiles;
+    public StaticFilesRoute getStaticFiles() {
+        return staticFiles;
     }
 
-    public void setPublicFiles(IRoute publicFiles) {
-        router.addRoute(publicFiles);
+    public void setNotFoundRoute(NotFoundRoute route) { webServer.setNotFoundRoute(route); }
+
+    public void setStaticFiles(IRoute staticFiles) {
+        router.addRoute(staticFiles);
     }
 
     public Context getActivityContext() {

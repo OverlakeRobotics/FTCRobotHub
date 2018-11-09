@@ -1,11 +1,13 @@
 package com.overlake.ftc.ftcrobothub.routes;
 
-import com.overlake.ftc.ftcrobothub.webserver.AddRoute;
-import com.overlake.ftc.ftcrobothub.webserver.Route;
+import com.overlake.ftc.ftcrobothub.webserver.routing.AddRoute;
+import com.overlake.ftc.ftcrobothub.webserver.responses.JsonResponse;
+import com.overlake.ftc.ftcrobothub.webserver.routing.Route;
+import com.overlake.ftc.ftcrobothub.webserver.routing.StaticFilesRoute;
 
 import java.util.Map;
 
-import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Method;
 
@@ -15,22 +17,32 @@ public class HomeRoute extends Route {
     }
 
     @AddRoute(uri="", method=Method.GET)
-    public Response get1(NanoHTTPD.IHTTPSession session) {
-        return NanoHTTPD.newFixedLengthResponse("Hello, world");
+    public Response get1(IHTTPSession session) {
+        return StaticFilesRoute.sendFile("/public/index.html");
     }
+
+    @AddRoute(uri="", method=Method.POST)
+    public Response post1(IHTTPSession session) {
+        SumDTO sum = new SumDTO();
+        NumberInput numbers = parseBody(session, new NumberInput());
+        sum.calculate(numbers.getInput());
+        return new JsonResponse(sum);
+    }
+
 
     @AddRoute(uri="add", method=Method.GET)
-    public Response get2(NanoHTTPD.IHTTPSession session) {
+    public Response get2(IHTTPSession session) {
         Map<String, String> params = session.getParms();
-        return NanoHTTPD.newFixedLengthResponse(sumParams(session.getParms()));
+        SumDTO sum = new SumDTO();
+        sum.calculate(params.get("numbers"));
+        return new JsonResponse(sum);
     }
+}
 
-    private String sumParams(Map<String, String> params) {
-        int sum = 0;
-        String[] values = params.get("numbers").split(",");
-        for (String value : values) {
-            sum += Integer.parseInt(value);
-        }
-        return "The sum of " + params.get("numbers") + " is " + sum;
+class NumberInput {
+    private String input;
+
+    public String getInput() {
+        return input;
     }
 }
