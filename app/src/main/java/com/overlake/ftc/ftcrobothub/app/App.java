@@ -7,6 +7,9 @@ import com.overlake.ftc.ftcrobothub.webserver.routing.IRoute;
 import com.overlake.ftc.ftcrobothub.webserver.routing.NotFoundRoute;
 import com.overlake.ftc.ftcrobothub.webserver.routing.Router;
 import com.overlake.ftc.ftcrobothub.webserver.routing.StaticFilesRoute;
+import com.overlake.ftc.ftcrobothub.websocket.ClientRequest;
+import com.overlake.ftc.ftcrobothub.websocket.SocketRequestHandler;
+import com.overlake.ftc.ftcrobothub.websocket.WebSocket;
 
 public abstract class App
 {
@@ -50,6 +53,10 @@ public abstract class App
 
     public boolean isRunning() {
         return webServer.isListening();
+    }
+
+    public WebSocket getWebsocket(int port, SocketRequestHandler socketRequestHandler) {
+        return new WebSocket(port, socketRequestHandler);
     }
 
     public abstract void main();
