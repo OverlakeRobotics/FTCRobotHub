@@ -1,6 +1,8 @@
-package com.overlake.ftc.ftcrobothub.activities;
+package com.overlake.ftc.ftcrobothub.logging;
 
 import android.util.Log;
+
+import com.google.gson.GsonBuilder;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -15,48 +17,48 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
-public class ChatRoomServer extends WebSocketServer
+public class LoggingServer extends WebSocketServer
 {
-    public ChatRoomServer( int port ) throws UnknownHostException
+    public LoggingServer(int port ) throws UnknownHostException
     {
         super( new InetSocketAddress( port ) );
     }
 
-    public ChatRoomServer( InetSocketAddress address ) {
+    public LoggingServer(InetSocketAddress address ) {
         super( address );
     }
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake ) {
-        conn.send("Welcome to the server!"); //This method sends a message to the new client
-        broadcast( "new connection: " + handshake.getResourceDescriptor() ); //This method sends a message to all clients connected
+        conn.send(new LoggingConnectionMessage().getJson());
     }
 
     @Override
     public void onClose( WebSocket conn, int code, String reason, boolean remote ) {
-        broadcast( conn + " has left the room!" );
+        conn.send(new LoggingDisconnectMessage().getJson());
     }
 
     @Override
     public void onMessage( WebSocket conn, String message ) {
         broadcast( message );
     }
+
     @Override
     public void onMessage( WebSocket conn, ByteBuffer message ) {
         broadcast( message.array() );
     }
 
     @Override
-    public void onError( WebSocket conn, Exception ex ) {
-        ex.printStackTrace();
-        if( conn != null ) {
-            Log.e("ChatRoomServer", ex.getMessage());
+    public void onError( WebSocket conn, Exception exception ) {
+        if( conn == null ) {
+            Log.e("LoggingServer", exception.getMessage() + "");
+        } else {
+            conn.send(new LoggingErrorMessage(exception).getJson());
         }
     }
 
     @Override
     public void onStart() {
-        System.out.println("Server started!");
         setConnectionLostTimeout(0);
         setConnectionLostTimeout(100);
     }

@@ -7,11 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -21,8 +21,8 @@ import com.overlake.ftc.ftcrobothub.R;
 import com.overlake.ftc.ftcrobothub.app.App;
 import com.overlake.ftc.ftcrobothub.app.RobotApp;
 
-public class ServerActivity extends AppCompatActivity {
-    private ConstraintLayout layout;
+public class MainActivity extends AppCompatActivity {
+
     private FloatingActionButton startButton;
     private TextView serverStatusText;
     private TextView ipText;
@@ -33,12 +33,11 @@ public class ServerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_server);
+        setContentView(R.layout.activity_main);
         app = new RobotApp(this);
 
         this.startButton = findViewById(R.id.serverToggle);
         this.serverStatusText = findViewById(R.id.serverStatus);
-        this.layout = findViewById(R.id.layout);
         this.ipText = findViewById(R.id.ip);
         setIpAccess();
 
@@ -54,12 +53,12 @@ public class ServerActivity extends AppCompatActivity {
                 if (!app.isRunning()) {
                     app.start();
                     serverStatusText.setVisibility(View.VISIBLE);
-                    startButton.setBackgroundTintList(ContextCompat.getColorStateList(ServerActivity.this, R.color.colorGreen));
+                    startButton.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, R.color.colorGreen));
                     Toast.makeText(getBaseContext(), "Started web server", Toast.LENGTH_SHORT).show();
                 } else {
                     app.stop();
                     serverStatusText.setVisibility(View.INVISIBLE);
-                    startButton.setBackgroundTintList(ContextCompat.getColorStateList(ServerActivity.this, R.color.colorRed));
+                    startButton.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, R.color.colorRed));
                     Toast.makeText(getBaseContext(), "Stopping web server", Toast.LENGTH_SHORT).show();
                 }
             }

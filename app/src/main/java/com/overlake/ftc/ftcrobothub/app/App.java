@@ -46,6 +46,7 @@ public abstract class App
 
     public void stop() {
         webServer.stopListening();
+        onClose();
     }
 
     public boolean isRunning() {
@@ -53,4 +54,6 @@ public abstract class App
     }
 
     public abstract void main();
+
+    public abstract void onClose();
 }
