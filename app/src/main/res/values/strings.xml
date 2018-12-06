@@ -4,5 +4,4 @@
     <string name="dialog_exit_message">FTC Robot Hub is currently running. If you exit the application we will stop it. Are sure you want to exit the application?</string>
     <string name="warning">Warning</string>
     <string name="wifi_message">You must connect to a WiFi network to use this service.</string>
-    <string name="title_activity_test">TestActivity</string>
 </resources>
