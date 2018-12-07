@@ -54,7 +54,7 @@ public class StaticFilesRoute implements IRoute
         File file = getFile(path);
         if (file.isFile()) {
             addHandlerForFile(file, routingTable);
-        } else {
+        } else if (file.listFiles() != null) {
             for (File child : file.listFiles()) {
                 setStaticRoutes(path + "/" + child.getName(), routingTable);
             }
@@ -87,7 +87,7 @@ public class StaticFilesRoute implements IRoute
             {
                 return NanoHTTPD.newChunkedResponse(
                     Response.Status.OK,
-                    "text/html",
+                    MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(session.getUri())),
                     getInputStream(file)
                 );
             }
@@ -108,7 +108,7 @@ public class StaticFilesRoute implements IRoute
     public static Response sendFile(String URI) {
         return NanoHTTPD.newChunkedResponse(
             Response.Status.OK,
-            MimeTypeMap.getSingleton().getMimeTypeFromExtension(URI),
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(URI)),
             getInputStream(new File(filePaths.get(URI)))
         );
     }

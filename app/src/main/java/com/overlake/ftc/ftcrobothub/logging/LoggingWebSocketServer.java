@@ -17,14 +17,14 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
-public class LoggingServer extends WebSocketServer
+public class LoggingWebSocketServer extends WebSocketServer
 {
-    public LoggingServer(int port ) throws UnknownHostException
+    public LoggingWebSocketServer(int port )
     {
         super( new InetSocketAddress( port ) );
     }
 
-    public LoggingServer(InetSocketAddress address ) {
+    public LoggingWebSocketServer(InetSocketAddress address ) {
         super( address );
     }
 
@@ -40,18 +40,14 @@ public class LoggingServer extends WebSocketServer
 
     @Override
     public void onMessage( WebSocket conn, String message ) {
-        broadcast( message );
-    }
-
-    @Override
-    public void onMessage( WebSocket conn, ByteBuffer message ) {
-        broadcast( message.array() );
+        // Should really handle client requests on the logging such as filtering
+        broadcast( new LoggingMessage("Info", message).getJson() );
     }
 
     @Override
     public void onError( WebSocket conn, Exception exception ) {
         if( conn == null ) {
-            Log.e("LoggingServer", exception.getMessage() + "");
+            Log.e("LoggingWebSocketServer", exception.getMessage() + "");
         } else {
             conn.send(new LoggingErrorMessage(exception).getJson());
         }

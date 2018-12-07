@@ -1,16 +1,15 @@
 package com.overlake.ftc.ftcrobothub.app;
 
 import android.content.Context;
-import android.net.wifi.WifiManager;
 
-import com.overlake.ftc.ftcrobothub.logging.LoggingServer;
+import com.overlake.ftc.ftcrobothub.logging.LoggingTCPServer;
+import com.overlake.ftc.ftcrobothub.logging.LoggingWebSocketServer;
+import com.overlake.ftc.ftcrobothub.webserver.routing.StaticFilesRoute;
 
 import java.io.IOException;
 
-import static android.content.Context.WIFI_SERVICE;
-
 public class RobotApp extends App {
-    private LoggingServer server;
+    private Thread serverThread;
 
     public RobotApp(Context context) {
         super(context);
@@ -19,10 +18,16 @@ public class RobotApp extends App {
     @Override
     public void main()
     {
+        initializeLoggingService();
+        setStaticFiles(new StaticFilesRoute("public", getActivityContext()));
+    }
+
+    private void initializeLoggingService() {
         try
         {
-            server = new LoggingServer(7000);
-            server.start();
+            LoggingTCPServer server = new LoggingTCPServer(7000);
+            serverThread = new Thread(server);
+            serverThread.start();
         }
         catch (Exception e)
         {
@@ -32,13 +37,5 @@ public class RobotApp extends App {
 
     @Override
     public void onClose() {
-        try {
-            server.stop();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
-
 }

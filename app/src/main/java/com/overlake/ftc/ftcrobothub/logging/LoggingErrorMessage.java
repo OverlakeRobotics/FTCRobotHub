@@ -4,7 +4,7 @@ public class LoggingErrorMessage extends LoggingMessage {
     public Exception exception;
 
     public LoggingErrorMessage(Exception exception) {
-        super("Exception");
+        super("Error", "An Exception was thrown");
         this.exception = exception;
     }
 }

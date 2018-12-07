@@ -1,12 +1,15 @@
 package com.overlake.ftc.ftcrobothub.app;
 
 import android.content.Context;
+import android.net.wifi.WifiManager;
 
 import com.overlake.ftc.ftcrobothub.webserver.WebServer;
 import com.overlake.ftc.ftcrobothub.webserver.routing.IRoute;
 import com.overlake.ftc.ftcrobothub.webserver.routing.NotFoundRoute;
 import com.overlake.ftc.ftcrobothub.webserver.routing.Router;
 import com.overlake.ftc.ftcrobothub.webserver.routing.StaticFilesRoute;
+
+import static android.content.Context.WIFI_SERVICE;
 
 public abstract class App
 {
@@ -31,7 +34,8 @@ public abstract class App
 
     public void setNotFoundRoute(NotFoundRoute route) { webServer.setNotFoundRoute(route); }
 
-    public void setStaticFiles(IRoute staticFiles) {
+    public void setStaticFiles(StaticFilesRoute staticFiles) {
+        this.staticFiles = staticFiles;
         router.addRoute(staticFiles);
     }
 
