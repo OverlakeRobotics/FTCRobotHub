@@ -30,6 +30,11 @@ public class Router {
     }
 
     private String getStaticPath(RoutingPath path) {
-        return StaticFilesRoute.getBaseURI() + path.uri;
+        if (StaticFilesRoute.getBaseURI().endsWith("/")) {
+            String base = StaticFilesRoute.getBaseURI();
+            return base.substring(0, base.length() - 1) + path.uri;
+        } else {
+            return StaticFilesRoute.getBaseURI() + path.uri;
+        }
     }
 }

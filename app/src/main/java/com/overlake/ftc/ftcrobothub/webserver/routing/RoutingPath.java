@@ -7,7 +7,8 @@ public class RoutingPath {
     public Method method;
 
     public RoutingPath(String uri, Method method) {
-        this.uri = uri;
+        uri = uri.startsWith("/") ? uri : "/" + uri;
+        this.uri = uri.endsWith("/") ? uri : uri + "/";
         this.method = method;
     }
 

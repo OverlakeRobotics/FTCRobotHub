@@ -34,8 +34,8 @@ public abstract class App
 
     public void setNotFoundRoute(NotFoundRoute route) { webServer.setNotFoundRoute(route); }
 
-    public void setStaticFiles(StaticFilesRoute staticFiles) {
-        this.staticFiles = staticFiles;
+    public void setStaticFilesBasePath(String baseURI) {
+        this.staticFiles = new StaticFilesRoute(baseURI, getActivityContext());
         router.addRoute(staticFiles);
     }
 

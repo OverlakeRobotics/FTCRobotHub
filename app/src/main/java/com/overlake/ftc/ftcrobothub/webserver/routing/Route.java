@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 
@@ -17,7 +18,8 @@ public abstract class Route implements IRoute
     private String baseURI;
 
     public Route(String baseURI) {
-        this.baseURI = baseURI;
+        baseURI = baseURI.startsWith("/") ? baseURI : "/" + baseURI;
+        this.baseURI = baseURI.endsWith("/") ? baseURI : baseURI + "/";
     }
 
     @Override
@@ -42,6 +44,8 @@ public abstract class Route implements IRoute
     }
 
     private String buildPath(String URI) {
+        URI = URI.endsWith("/") ? URI : URI + "/";
+        URI = URI.startsWith("/") ? URI.substring(1) : URI;
         return baseURI.endsWith("/") ?
             baseURI + URI :
             baseURI + "/" + URI;
@@ -72,15 +76,17 @@ public abstract class Route implements IRoute
 
     protected <T> T parseBody(IHTTPSession session, T schema) {
         Gson gson = new Gson();
-        return (T)(gson.fromJson(getJsonBody(session), schema.getClass()));
+        String json =  getJsonBody(session);
+        return (T)(gson.fromJson(json, schema.getClass()));
     }
 
     private String getJsonBody(IHTTPSession session) {
         try
         {
+            InputStream input = session.getInputStream();
             Integer contentLength = Integer.parseInt(session.getHeaders().get("content-length"));
             byte[] buffer = new byte[contentLength];
-            InputStream input = session.getInputStream();
+            while (input.available() < contentLength) { }
             input.read(buffer, 0, contentLength);
             return new String(buffer);
         }

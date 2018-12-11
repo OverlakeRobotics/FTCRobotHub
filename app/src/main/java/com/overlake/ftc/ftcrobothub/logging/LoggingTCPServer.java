@@ -1,6 +1,7 @@
 package com.overlake.ftc.ftcrobothub.logging;
 
 import android.net.wifi.WifiManager;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,9 +12,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.Buffer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LoggingTCPServer implements Runnable
 {
+    private volatile boolean isRunning;
     private final int LoggingTCPServerPort = 7001;
     private int loggingWebSocketServerPort;
     private ServerSocket loggingSocket;
@@ -21,6 +24,7 @@ public class LoggingTCPServer implements Runnable
 
     public LoggingTCPServer(int loggingWebSocketServerPort) throws IOException
     {
+        isRunning = true;
         this.loggingWebSocketServerPort = loggingWebSocketServerPort;
         loggingSocket = new ServerSocket(LoggingTCPServerPort);
     }
@@ -28,28 +32,52 @@ public class LoggingTCPServer implements Runnable
     @Override
     public void run()
     {
+
         try
         {
             loggingWebSocketServer = new LoggingWebSocketServer(loggingWebSocketServerPort);
             loggingWebSocketServer.start();
-            while (true) {
+            while (isRunning) {
                 Socket loggingClientSocket = loggingSocket.accept();
-                broadCastLoggingLine(loggingClientSocket);
+                while (!loggingClientSocket.isClosed()) {
+                    broadCastLoggingLine(loggingClientSocket);
+                }
                 loggingClientSocket.close();
             }
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            Log.i("LoggingTCPServer", e.getMessage());
         }
     }
 
-    private void broadCastLoggingLine(Socket clientSocket) throws IOException
+    private void broadCastLoggingLine(Socket clientSocket)
     {
-        BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String line;
-        while((line = input.readLine()) != null) {
-            loggingWebSocketServer.broadcast(line);
+        try {
+            BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String line;
+            while((line = input.readLine()) != null) {
+                loggingWebSocketServer.broadcast(line);
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public void stop() {
+        isRunning = false;
+        try
+        {
+            loggingSocket.close();
+            loggingWebSocketServer.stop();
+        }
+        catch (InterruptedException e)
+        {
+            throw new IllegalStateException(e);
+        }
+        catch (IOException e)
+        {
+            throw new IllegalStateException(e);
         }
     }
 }
